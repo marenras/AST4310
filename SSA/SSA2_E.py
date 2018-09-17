@@ -55,11 +55,43 @@ def saha_boltz_E(T, P_e, r, s):
       return saha_E(T, P_e, r) * boltz_E(T, r, s)
 
 
+def saha_boltz_H(T, P_e, r):
+    el_dens = P_e / (k_erg*T)
+
+    # energy levels and weights for hydrogen
+    num = 100                                      # reasonable partition function cut-off value
+    g = np.zeros((2, num))                         # declarations weights (too many for proton)
+    chi_exc = np.zeros((2, num))                   # declaration excitation energies (idem)
+    for s in range(num):
+        g[0,s] = 2.*(s+1.)**2.                     # statistical weights
+        chi_exc[0,s] = 13.598*(1.-1./(s+1.)**2.)   # excitation weights
+
+    g[1,0] = 1.                                    # statistical weights free proton
+    chi_exc[1,0] = 0.
+
+    # Partition functions
+    U = np.zeros([2])
+    for s in range(num):
+        U[0] = U[0] + g[0,s]*np.exp(-chi_exc[0,s]/(k_eV*T))
+    U[1] = g[1,0]
+
+    # Saha
+    saha_const = (2*np.pi*m_e*(k_erg*T) /(h*h))**(3./2)*2./el_dens
+    N = np.zeros(2)
+    N[0] = 1.
+    N[1] = N[0] * saha_const * U[1]/U[0] * np.exp(-13.598/(k_eV*T))
+    N_total = np.sum(N)        # sum both stages = total hydrogen density
+
+    # Boltzmann
+    n = N[0]*g[0,r-1]/U[0]*np.exp(-chi_exc[0,r-1]/(k_eV*T))
+    n_rel = n/N_total      # fraction of total hydrogen density
+
+    return n_rel
 
 
 
-""" Creating Payne's plots """
-def values(s):
+""" Creating plots """
+def paynes_curves(s):
     P_e_payne = 131.0                 # Payne's electron pressure (dyne cm^-2)
     temp = np.arange(0,30001,1000)    # Creates array with temperatures between 0 and 30000 K with 1000 K between each point
     pop = np.zeros((5,31))            # Creating empty matrix
@@ -70,6 +102,7 @@ def values(s):
             pop[r,T] = saha_boltz_E(temp[T], P_e_payne, r, s)
 
     labellst = ['Ground stage', 'First ion stage', 'Second ion stage', 'Third ion stage']
+
     plt.figure()
     for i in range(1,5):
         plt.plot(temp,pop[i,:], label=labellst[i-1])
@@ -82,8 +115,66 @@ def values(s):
     plt.grid()
 
 
+def line_strength_ratio():
+    temp = np.arange(1000,20001,100)
+    CaH = np.zeros(temp.shape)
+    Caabund = 2.0e-6
+    for i in range(0,191):
+        NCa = saha_boltz_E(temp[i],1e2,2,1) # is equal to sahabolt_Ca
+        NH = saha_boltz_H(temp[i],1e2,2)
+        CaH[i] = NCa*Caabund/NH
+    plt.plot(temp,CaH, label=r'strength ratio Ca$^+$K / H$\alpha$')
+    plt.yscale('log')
+    plt.xlabel(r'temperature $T / K$', size=14)
+    plt.ylabel(r'Ca II K / H$\alpha$', size=14)
+    plt.legend(fontsize=14)
+    plt.grid()
+    plt.show()
 
-values(1)
-values(2)
-values(4)
-plt.show()
+    print 'Ca/H ratio at 5000 K = ', CaH[np.argwhere(temp==5000)][0][0]
+
+def temp_sensitivity():
+    temp = np.arange(2000,12001,100)
+    dNCadT = np.zeros(temp.shape)
+    dNHdT = np.zeros(temp.shape)
+    dT = 1.
+    for i in range(101):
+        NCa = saha_boltz_E(temp[i],1e2,2,1)
+        NCa2 = saha_boltz_E(temp[i]-dT,1e2,2,1)
+        dNCadT[i] = (NCa - NCa2)/(dT*NCa)
+        NH = saha_boltz_H(temp[i],1e2,2)
+        NH2 = saha_boltz_H(temp[i]-dT,1e2,2)
+        dNHdT[i] = (NH-NH2)/(dT*NH)
+
+    NCa = np.zeros(temp.shape)
+    NH = np.zeros(temp.shape)
+    for i in range(101):
+        NCa[i] = saha_boltz_E(temp[i],1e2,2,1)
+        NH[i] = saha_boltz_H(temp[i],1e2,2)
+
+    plt.figure()
+    plt.plot(temp,np.absolute(dNHdT), label=r'H')
+    plt.plot(temp,np.absolute(dNCadT), label=r'Ca$^+$K')
+    plt.plot(temp,NH/np.amax(NH), ls='--',  label = 'rel. pop. H')
+    plt.plot(temp,NCa/np.amax(NCa), ls='--', label = r'rel. pop. Ca$^+$')
+    plt.yscale('log')
+    plt.xlabel(r'temperature $T/K$', size=14)
+    plt.ylabel(r'$\left| \left( \Delta n(r,s) / \Delta T \right) /  n(r,s) \right|$', size=20)
+    plt.legend(loc=4, fontsize=12)
+    plt.grid()
+    plt.show()
+
+def hot_vs_cool():
+    for T in np.arange(2e3,2e4+1,2e3):
+        print T, saha_boltz_H(T,1e2,1)
+    temp = np.arange(1e3,2e4+1,1e2)
+    nH = np.zeros(temp.shape)
+    for i in range(191):
+        nH[i] = saha_boltz_H(temp[i],1e2,1)
+    plt.plot(temp,nH)
+    plt.xlabel('temperature $T/K$', size=14)
+    plt.ylabel('neutral hydrogen fraction', size=14)
+    plt.legend()
+    plt.grid()
+    plt.show()
+hot_vs_cool()
