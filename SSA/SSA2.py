@@ -55,6 +55,7 @@ def saha_boltz_E(T, P_e, r, s):
       return saha_E(T, P_e, r) * boltz_E(T, r, s)
 
 
+
 def saha_boltz_H(T, P_e, r):
     el_dens = P_e / (k_erg*T)
 
@@ -113,6 +114,7 @@ def plot_boltz():
     plt.show()
 
 def plot_saha():
+    #P_e = 1e1
     N = 1000
     temp = np.linspace(1,30000,N)
     pop = np.zeros((5,N))
@@ -134,8 +136,6 @@ def plot_saha():
     plt.grid()
     plt.show()
 
-plot_saha()
-
 
 
 
@@ -154,17 +154,19 @@ def paynes_curves(s):
 
     plt.figure()
     for r in range(1,5):
-        plt.semilogy(temp,pop[r,:], label=labellst[r-1], color=colors[r])
-    plt.title('Payne\'s curves for s = %d (P_e = 131 dyne cm^-2)' %(s))
+        plt.plot(temp,pop[r,:], label=labellst[r-1])#, color=colors[r+2])
+    plt.title(r"Payne's curves for s = %d ($P_e$ = 131 dyne cm$^{-2}$)" %(s))
     plt.xlabel('Temperature [K]', size=14)
     plt.ylabel('Population', size=14)
-    plt.ylim([1e-3, 1.1])
-    plt.xlim([0,30000])
-    plt.legend(loc=4)
+    #plt.ylim([1e-3, 1.1])
+    #plt.xlim([0,30000])
+    plt.legend(loc='best')
     plt.grid()
     plt.show()
 
 paynes_curves(1)
+paynes_curves(2)
+paynes_curves(4)
 
 def line_strength_ratio():
     temp = np.arange(1000,20001,100)
