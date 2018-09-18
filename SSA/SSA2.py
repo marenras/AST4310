@@ -10,7 +10,7 @@ m_e = 9.109390e-28                     # Electron mass (g)
 chi_ion = np.array([7, 16, 31, 51])    # Create numpy array of Schadee ionization energies
 P_e = 1e3                              # Electron pressure (dyne cm^-2)
 
-
+colors = ['red', 'orangered', 'goldenrod', 'green',  'blue', 'purple', 'magenta']
 
 """ Defining functions """
 def partfunc_E(T):
@@ -91,29 +91,80 @@ def saha_boltz_H(T, P_e, r):
 
 
 """ Creating plots """
+def plot_boltz():
+    N = 100
+    temp = np.linspace(1,30000,N)
+    pop = np.zeros((8,N))
+    r = 1
+    for s in range(1,8):
+        for T in range(N):
+            pop[s,T] = boltz_E(temp[T], r, s)
+
+
+    plt.figure()
+    for s in range(1,8):
+        plt.semilogy(temp,pop[s,:], label='s = %d' %s, color=colors[s-1])
+    plt.ylim([1e-4, 1.5])
+    plt.xlabel('Temperature [K]')
+    plt.ylabel('Population')
+    plt.title('Boltzmann\'s distribution for E')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.show()
+
+def plot_saha():
+    N = 1000
+    temp = np.linspace(1,30000,N)
+    pop = np.zeros((5,N))
+
+    for r in range(1,5):
+        for T in range(N):
+            pop[r,T] = saha_E(temp[T], P_e, r)
+
+    labellst = ['Ground stage', 'First ion stage', 'Second ion stage', 'Third ion stage']
+
+    plt.figure()
+    for r in range(1,5):
+        plt.plot(temp,pop[r,:], label=labellst[r-1], color=colors[r-1])
+    #plt.ylim([1e-4, 1.5])
+    plt.xlabel('Temperature [K]')
+    plt.ylabel('Population')
+    plt.title('Saha\'s distribution for E')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.show()
+
+plot_saha()
+
+
+
+
 def paynes_curves(s):
     P_e_payne = 131.0                 # Payne's electron pressure (dyne cm^-2)
-    temp = np.arange(0,30001,1000)    # Creates array with temperatures between 0 and 30000 K with 1000 K between each point
-    pop = np.zeros((5,31))            # Creating empty matrix
+    N = 100
+    temp = np.linspace(1,30001,N)    # Creates array with temperatures between 1 and 30000 K
+    pop = np.zeros((5,N))            # Creating empty matrix
 
     # Calculates Saha * Boltzmann for different temperatures T and different ionization states r
-    for T in np.arange(1,31):
-        for r in np.arange(1,5):
+    for T in range(N):
+        for r in range(1,5):
             pop[r,T] = saha_boltz_E(temp[T], P_e_payne, r, s)
 
     labellst = ['Ground stage', 'First ion stage', 'Second ion stage', 'Third ion stage']
 
     plt.figure()
-    for i in range(1,5):
-        plt.plot(temp,pop[i,:], label=labellst[i-1])
-    plt.title('s = %d' %(s))
+    for r in range(1,5):
+        plt.semilogy(temp,pop[r,:], label=labellst[r-1], color=colors[r])
+    plt.title('Payne\'s curves for s = %d (P_e = 131 dyne cm^-2)' %(s))
     plt.xlabel('Temperature [K]', size=14)
     plt.ylabel('Population', size=14)
-    plt.yscale('log')
     plt.ylim([1e-3, 1.1])
-    plt.legend(loc='best')
+    plt.xlim([0,30000])
+    plt.legend(loc=4)
     plt.grid()
+    plt.show()
 
+paynes_curves(1)
 
 def line_strength_ratio():
     temp = np.arange(1000,20001,100)
@@ -177,4 +228,3 @@ def hot_vs_cool():
     plt.legend()
     plt.grid()
     plt.show()
-hot_vs_cool()
