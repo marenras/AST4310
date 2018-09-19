@@ -164,9 +164,7 @@ def paynes_curves(s):
     plt.grid()
     plt.show()
 
-paynes_curves(1)
-paynes_curves(2)
-paynes_curves(4)
+
 
 def line_strength_ratio():
     temp = np.arange(1000,20001,100)
@@ -176,15 +174,20 @@ def line_strength_ratio():
         NCa = saha_boltz_E(temp[i],1e2,2,1) # is equal to sahabolt_Ca
         NH = saha_boltz_H(temp[i],1e2,2)
         CaH[i] = NCa*Caabund/NH
-    plt.plot(temp,CaH, label=r'strength ratio Ca$^+$K / H$\alpha$')
-    plt.yscale('log')
-    plt.xlabel(r'temperature $T / K$', size=14)
-    plt.ylabel(r'Ca II K / H$\alpha$', size=14)
+    plt.hlines(1, 0, 20000, 'magenta', linestyle='--')
+    plt.semilogy(temp,CaH)
+    plt.title(r'Strength ratio Ca$^+$K / H$\alpha$')
+    plt.xlabel('Temperature [K]', size=14)
+    plt.ylabel(r'Ca$^+$ K / H$\alpha$', size=14)
     plt.legend(fontsize=14)
     plt.grid()
     plt.show()
 
     print 'Ca/H ratio at 5000 K = ', CaH[np.argwhere(temp==5000)][0][0]
+
+
+line_strength_ratio()
+
 
 def temp_sensitivity():
     temp = np.arange(2000,12001,100)
