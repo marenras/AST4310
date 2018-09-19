@@ -12,6 +12,8 @@ P_e = 1e3                              # Electron pressure (dyne cm^-2)
 
 colors = ['red', 'orangered', 'goldenrod', 'green',  'blue', 'purple', 'magenta']
 
+
+
 """ Defining functions """
 def partfunc_E(T):
     U = np.zeros(4)                     # Create a 4 zero-element array
@@ -31,6 +33,8 @@ def boltz_E(T, r, s):
 
 
 def saha_E(T, P_e, r): #ionstage):
+    chi_ion = np.array([6, 12, 51, 67])
+
     el_dens = P_e / (k_erg*T)
 
     U = partfunc_E(T)
@@ -108,7 +112,7 @@ def plot_boltz():
     plt.ylim([1e-4, 1.5])
     plt.xlabel('Temperature [K]')
     plt.ylabel('Population')
-    plt.title('Boltzmann\'s distribution for E')
+    plt.title('Boltzmann distribution for E')
     plt.legend(loc='best')
     plt.grid()
     plt.show()
@@ -131,11 +135,10 @@ def plot_saha():
     #plt.ylim([1e-4, 1.5])
     plt.xlabel('Temperature [K]')
     plt.ylabel('Population')
-    plt.title('Saha\'s distribution for E')
+    plt.title('Saha distribution for E')
     plt.legend(loc='best')
     plt.grid()
     plt.show()
-
 
 
 
@@ -165,7 +168,6 @@ def paynes_curves(s):
     plt.show()
 
 
-
 def line_strength_ratio():
     temp = np.arange(1000,20001,100)
     CaH = np.zeros(temp.shape)
@@ -185,8 +187,6 @@ def line_strength_ratio():
 
     print 'Ca/H ratio at 5000 K = ', CaH[np.argwhere(temp==5000)][0][0]
 
-
-line_strength_ratio()
 
 
 def temp_sensitivity():
@@ -211,14 +211,17 @@ def temp_sensitivity():
     plt.figure()
     plt.plot(temp,np.absolute(dNHdT), label=r'H')
     plt.plot(temp,np.absolute(dNCadT), label=r'Ca$^+$K')
-    plt.plot(temp,NH/np.amax(NH), ls='--',  label = 'rel. pop. H')
-    plt.plot(temp,NCa/np.amax(NCa), ls='--', label = r'rel. pop. Ca$^+$')
+    plt.plot(temp,NH/np.amax(NH), ls='--',  label = 'Rel. population H')
+    plt.plot(temp,NCa/np.amax(NCa), ls='--', label = r'Rel. population Ca$^+$')
     plt.yscale('log')
-    plt.xlabel(r'temperature $T/K$', size=14)
-    plt.ylabel(r'$\left| \left( \Delta n(r,s) / \Delta T \right) /  n(r,s) \right|$', size=20)
-    plt.legend(loc=4, fontsize=12)
+    plt.xlabel('Temperature [K]', size=14)
+    plt.axis([1800,12200, 1e-8, 1.5])
+    plt.ylabel(r'$\left| \left( \frac{\Delta n_{r,s}}{\Delta T} \right) /  n_{r,s} \right|$', size=20)
+    plt.legend(loc='best', fontsize=12)
+    plt.title('Temperature sensitivity', fontsize=15)
     plt.grid()
     plt.show()
+
 
 def hot_vs_cool():
     for T in np.arange(2e3,2e4+1,2e3):
@@ -228,8 +231,12 @@ def hot_vs_cool():
     for i in range(191):
         nH[i] = saha_boltz_H(temp[i],1e2,1)
     plt.plot(temp,nH)
+    plt.hlines(0.5, 1e3, 2e4, 'magenta', linestyle='--')
     plt.xlabel('temperature $T/K$', size=14)
     plt.ylabel('neutral hydrogen fraction', size=14)
     plt.legend()
     plt.grid()
     plt.show()
+
+
+hot_vs_cool()
