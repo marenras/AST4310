@@ -29,7 +29,7 @@ def plot_planck(logy=False, logx=False):
     plt.plot(lmbdas, planck(8000, lmbdas[:]*1e-8), '-', color = colors[0], label = '8000 K')
     plt.plot(lmbdas, planck(5000, lmbdas[:]*1e-8), '-', color = colors[-1], label = '5000 K')
     plt.xlabel(r'Wavelength $\lambda$ [$\AA$]', size=14)
-    plt.ylabel(r'Planck function [erg cm$^-3$ s$^-1$ steradian$^-1$]', size=14)
+    plt.ylabel(r'$B_\lambda$ [erg cm$^{-2}$ s$^{-1}$ cm$^{-1}$steradian$^{-1}$]', size=14)
     plt.title("Planck's function for temperatures 5000-8000 K", size=15)
     plt.xlim(0,20800)
     plt.legend()
@@ -42,6 +42,10 @@ def plot_planck(logy=False, logx=False):
         plt.axis([1e3,20801,1e7, 1e16])
 
     plt.show()
+
+plot_planck()
+plot_planck(logy=True)
+plot_planck(logy=True, logx=True)
 
 def plot_intensity(log=False):
     B = 2.
@@ -59,4 +63,5 @@ def plot_intensity(log=False):
         plt.xscale('log')
     plt.show()
 
+plot_intensity()
 plot_intensity(log=True)
