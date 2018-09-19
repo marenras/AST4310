@@ -238,6 +238,3 @@ def hot_vs_cool():
     plt.legend()
     plt.grid()
     plt.show()
-
-
-hot_vs_cool()
