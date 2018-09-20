@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab
-
+from scipy import special
 
 colors = pylab.cm.rainbow(np.linspace(0,1,16))
 
@@ -43,9 +43,6 @@ def plot_planck(logy=False, logx=False):
 
     plt.show()
 
-plot_planck()
-plot_planck(logy=True)
-plot_planck(logy=True, logx=True)
 
 def plot_intensity(log=False):
     B = 2.
@@ -53,15 +50,106 @@ def plot_intensity(log=False):
     intensity = np.zeros(tau.shape)
     for I0 in range(4,-1,-1):
         intensity[:] = I0 * np.exp(-tau[:]) + B*(1-np.exp(-tau[:]))
-        plt.plot(tau, intensity, label = r'Intensity $I_\lambda(0)$ = ' + str(I0))
+        plt.plot(tau, intensity, label = r'$I_\lambda(0)$ = ' + str(I0))
     plt.xlabel(r'Optical thickness $\tau$', size=14)
     plt.ylabel('Intensity', size=14)
     plt.legend(fontsize=12, loc='best')
     plt.grid()
+    plt.title(r'Emergent intensity for $B_\lambda = 2$', size=15)
     if log:
         plt.yscale('log')
         plt.xscale('log')
     plt.show()
 
-plot_intensity()
-plot_intensity(log=True)
+
+
+def voigt(gamma,x):
+    z = (x+1j*gamma)
+    V = special.wofz(z).real
+    return V
+
+
+def plot_voigt():
+    u = np.arange(-10,10.1,0.1)
+    a = np.array([0.001,0.01,0.1,1])
+    vau = np.zeros((a.shape[0],u.shape[0]))
+
+    plt.figure()
+    for i in range(4):
+        vau[i,:] = voigt(a[i],u[:])
+        plt.plot(u[:],vau[i,:], label = 'a = ' + np.str(a[i]))
+    plt.axis([-10,10, 0,1])
+    plt.legend(fontsize=12)
+    plt.title('Voigt profile for different dampening parameters a', size=14)
+    plt.ylabel('Voigt profile', size=12)
+    plt.xlabel('u')
+    plt.grid()
+
+    plt.figure()
+    for i in range(4):
+        vau[i,:] = voigt(a[i],u[:])
+        plt.plot(u[:],vau[i,:], label = 'a = ' + np.str(a[i]))
+    plt.yscale('log')
+    plt.legend(fontsize=12, loc = 8)
+    plt.xlabel('u', size=14)
+    plt.ylabel('Voigt profile', size=12)
+    plt.title('Voigt profile for different dampening parameters a', size=14)
+    plt.grid()
+    plt.show()
+
+
+def plot_schuster_schwarzchild():
+    colors = pylab.cm.rainbow(np.linspace(0,1,9))
+
+    Ts = 5700.           # solar surface temperature
+    Tl = 4200.           # solar T-min temperature = 'reversing layer'
+    a = 0.1              # damping parameter
+    wav = 5000.0e-8      # wavelength in cm
+    tau0 = 1.            # reversing layer thickness at line center
+
+    u = np.arange(-10,10.1,0.1)
+    intensity = np.zeros(u.shape)
+
+    for i in range(201):
+        tau = tau0 * voigt(a, u[i])
+        intensity[i] = planck(Ts,wav) * np.exp(-tau) + planck(Tl,wav)*(1.-np.exp(-tau))
+
+    plt.figure()
+    plt.plot(u,intensity)
+    plt.title('Schuster-Schwarzschild line profile',size=14)
+    plt.xlabel('u',size=12)
+    plt.ylabel(r'Intensity  $I_\lambda$', size=12)
+    plt.grid()
+
+
+    logtau0 = np.arange(-2,2.1,0.5)
+
+    plt.figure()
+    for itau in range(9):
+        for i in range(201):
+            tau = 10.**(logtau0[itau]) * voigt(a, u[i])
+            intensity[i] = planck(Ts,wav) * np.exp(-tau) + planck(Tl,wav)*(1.-np.exp(-tau))
+        plt.plot(u,intensity, label = r'$\log{(\tau_0)} = $' + np.str(logtau0[itau]), color = colors[itau])
+
+    plt.legend(loc=3, fontsize=12)
+    plt.title('Schuster-Schwarzschild line profiles',size=14)
+    plt.xlabel('u',size=12)
+    plt.ylabel(r'Intensity  $I_\lambda$', size=12)
+    plt.grid()
+
+    plt.figure()
+    for iwav in range(1,4):
+        wav = (iwav**2+1.)*1.0e-5 # wav = 2000, 5000, 10000 angstrom
+        for itau in range(8):
+            for i in range(201):
+                tau = 10.**(logtau0[itau]) * voigt(a,u[i])
+                intensity[i] = planck(Ts,wav) * np.exp(-tau) + planck(Tl,wav)*(1.-np.exp(-tau))
+            intensity = intensity / intensity[0]
+            plt.plot(u,intensity[:],  linewidth=1.)
+    plt.title('Schuster-Schwarzschild line profiles',size=14)
+    plt.xlabel('u',size=12)
+    plt.ylabel(r'Intensity  $I_\lambda$', size=12)
+    plt.grid()
+    plt.show()
+
+plot_schuster_schwarzchild()
