@@ -105,7 +105,13 @@ def plot_schuster_schwarzchild():
     Tl = 4200.           # solar T-min temperature = 'reversing layer'
     a = 0.1              # damping parameter
     wav = 5000.0e-8      # wavelength in cm
+    #wav = 2000.0e-8     # ultraviolet
+    #wav = 10000.0e-8    # near infrared
     tau0 = 1.            # reversing layer thickness at line center
+
+    print 'Wavelength: %d angstrom' %(wav*1e8)
+    print "Planck's function of T_surface = %.2e" %(planck(Ts, wav))
+    print "Planck's function of T_layer = %.2e" %(planck(Tl, wav))
 
     u = np.arange(-10,10.1,0.1)
     intensity = np.zeros(u.shape)
@@ -132,24 +138,89 @@ def plot_schuster_schwarzchild():
         plt.plot(u,intensity, label = r'$\log{(\tau_0)} = $' + np.str(logtau0[itau]), color = colors[itau])
 
     plt.legend(loc=3, fontsize=12)
-    plt.title('Schuster-Schwarzschild line profiles',size=14)
-    plt.xlabel('u',size=12)
-    plt.ylabel(r'Intensity  $I_\lambda$', size=12)
-    plt.grid()
-
-    plt.figure()
-    for iwav in range(1,4):
-        wav = (iwav**2+1.)*1.0e-5 # wav = 2000, 5000, 10000 angstrom
-        for itau in range(8):
-            for i in range(201):
-                tau = 10.**(logtau0[itau]) * voigt(a,u[i])
-                intensity[i] = planck(Ts,wav) * np.exp(-tau) + planck(Tl,wav)*(1.-np.exp(-tau))
-            intensity = intensity / intensity[0]
-            plt.plot(u,intensity[:],  linewidth=1.)
-    plt.title('Schuster-Schwarzschild line profiles',size=14)
+    plt.title(r'Schuster-Schwarzschild line profiles for $\lambda = 5000 \AA$',size=14)
     plt.xlabel('u',size=12)
     plt.ylabel(r'Intensity  $I_\lambda$', size=12)
     plt.grid()
     plt.show()
 
-plot_schuster_schwarzchild()
+
+    colors = ['turquoise', 'b', 'm']
+    plt.figure()
+    for iwav in range(1,4):
+        wav = (iwav**2+1.)*1.0e-5   # wav = 2000, 5000, 10000 angstrom
+        for itau in range(8):
+            for i in range(201):
+                tau = 10.**(logtau0[itau]) * voigt(a,u[i])
+                intensity[i] = planck(Ts,wav) * np.exp(-tau) + planck(Tl,wav)*(1.-np.exp(-tau))
+            intensity = intensity / intensity[0]
+            if itau == 0:
+                plt.plot(u,intensity[:],  linewidth=1., color=colors[iwav-1], label=r'$\lambda = %d000 \AA$' %(wav*1e5))
+            else:
+                plt.plot(u,intensity[:],  linewidth=1., color=colors[iwav-1], label='_nolegend_')
+    plt.legend()
+    plt.xlabel('u',size=12)
+    plt.ylabel(r'Relative intensity $I_\lambda$', size=12)
+    plt.title('Scaled Schuster-Schwarzschild line profiles for different wavelengths', size=12)
+    plt.grid()
+    plt.show()
+
+
+
+
+def profile(a,tau0,u):
+    Tl = 5700.
+    Ts = 4200.
+    wav = 5000.0e-8
+    intensity = np.zeros(u.size)
+    usize = u.size
+    for i in range(usize):
+        tau = tau0 * voigt(a, u[i])
+        intensity[i] = planck(Ts,wav)*np.exp(-tau) + planck(Tl,wav)*(1.-np.exp(-tau))
+    return intensity
+
+def plot_profile():
+    # Checking the profile
+    u = np.arange(-200,200.4,0.4)
+    a = 0.1
+    tau0 = 1.0e2
+    intensity = profile(a,tau0,u)
+    plt.figure()
+    plt.plot(u,intensity)
+    plt.title(r'Schuster-Schwarzschild line profiles for $\lambda = 5000 \AA$ and $\tau = 1e2$', size=12)
+    plt.xlabel('u',size=12)
+    plt.ylabel(r'Intensity  $I_\lambda$', size=12)
+    plt.grid()
+    plt.show()
+
+    # relative
+    reldepth = (intensity[0]-intensity)/intensity[0]
+    plt.figure()
+    plt.title(r'Schuster-Schwarzschild line profiles for $\lambda = 5000 \AA$ and $\tau = 1e2$', size=12)
+    plt.xlabel('u',size=12)
+    plt.ylabel(r'Relative intensity', size=12)
+    plt.plot(u,reldepth)
+    plt.grid()
+    plt.show()
+    eqw = sum(reldepth)*0.4
+    print eqw
+
+def plot_curve_of_growth():
+    tau0 = np.logspace(-2, 4, 61)
+    eqw = np.zeros(tau0.size)
+    u = np.arange(-200,200.4,0.4)
+    a = 0.1
+    for i in range(61):
+        intensity = profile(a,tau0[i],u)
+        reldepth = (intensity[0] - intensity) / intensity[0]
+        eqw[i] = sum(reldepth)*0.4
+
+    plt.figure()
+    plt.plot(tau0, abs(eqw))
+    plt.xlabel(r'$\tau_0$', size=18)
+    plt.title('The absolute value of the equivalent width from reversing layer', size=14)
+    plt.ylabel(r'||Equivalent width $W_{\lambda}||$', size=14)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.grid()
+    plt.show()
