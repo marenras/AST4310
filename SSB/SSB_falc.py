@@ -7,7 +7,7 @@ font = {'family' : 'serif',
 rc('font', **font)   # This is for Latex writing
 
 # Define where figures will be saved
-folder = 'figures/'
+folder = 'figures_falc/'
 
 # Variables
 h, tau5, col_m, T, v_t, n_H, n_p, n_e, p_tot, p_ratio, rho \
@@ -158,4 +158,13 @@ def plot_hydrogen_density_height(save=False):
         fig.savefig(folder + 'hydrogen_electron_density.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-plot_hydrogen_density_height()
+def plot_ionization_fraction(save=False):
+    fig = plt.figure()
+    plt.grid()
+    plt.semilogy(h, rho_not_H_e)
+    plt.legend()
+    plt.xlabel('Height [km]')
+    plt.ylabel(r'Density [dyn cm$^{-2}$] ')
+    if save:
+        fig.savefig(folder + 'ionization_fraction.pdf', bbox_inches='tight',pad_inches=0.106)
+    plt.show()
