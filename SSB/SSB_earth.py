@@ -7,7 +7,7 @@ font = {'family' : 'serif',
 rc('font', **font)   # This is for Latex writing
 
 # Define where figures will be saved
-folder = 'figures_eath/'
+folder = 'figures_earth/'
 
 # Variables
 h, log_P, T, log_rho, log_N \
@@ -24,48 +24,55 @@ col_m = P/g_E                   # Column mass [g cm^-2]
 
 
 def plot_quantities(save=False):
-    fig = plt.figure()
+    fig1 = plt.figure()
     plt.grid()
     plt.plot(h, T)
     plt.xlabel('Height [km]')
     plt.ylabel('Temperature [K] ')
     if save:
-        fig.savefig(folder + '1_3_2_temp.pdf', bbox_inches='tight',pad_inches=0.106)
+        fig1.savefig(folder + '1_3_2_temp.pdf', bbox_inches='tight',pad_inches=0.106)
 
-    fig = plt.figure()
+    fig2 = plt.figure()
     plt.grid()
     plt.semilogy(h, P)
     plt.xlabel('Height [km]')
-    plt.ylabel('Pressure [dyn cm^-2]')
+    plt.ylabel(r'Pressure [dyn cm$^{-2}$]')
     if save:
-        fig.savefig(folder + '1_3_2_pressure.pdf', bbox_inches='tight',pad_inches=0.106)
+        fig2.savefig(folder + '1_3_2_pressure.pdf', bbox_inches='tight',pad_inches=0.106)
 
-    fig = plt.figure()
+    fig3 = plt.figure()
     plt.grid()
     plt.semilogy(h, N)
     plt.xlabel('Height [km]')
-    plt.ylabel('Particle density [cm^-3]')
+    plt.ylabel(r'Particle density [cm$^{-3}$]')
     if save:
-        fig.savefig(folder + '1_3b_N.pdf', bbox_inches='tight',pad_inches=0.106)
+        fig3.savefig(folder + '1_3b_N.pdf', bbox_inches='tight',pad_inches=0.106)
 
-    fig = plt.figure()
+    fig4 = plt.figure()
     plt.grid()
-    plt.semilogy(rho, N)
+    plt.semilogy(h, rho)
     plt.xlabel('Height [km]')
-    plt.ylabel('Gas density [cm^-3]')
+    plt.ylabel(r'Gas density [cm$^{-3}$]')
+    plt.axhline(y=rho[0]*1/np.exp(1),  color='r', linestyle='--', label=r'$\rho \cdot 1/e$')
+    plt.legend()
     if save:
-        fig.savefig(folder + '1_3b_density.pdf', bbox_inches='tight',pad_inches=0.106)
+        fig4.savefig(folder + '1_3b_density.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
+
+plot_quantities(save=True)
 
 def plot_pressure_density(save=False):
     fig = plt.figure()
     plt.grid()
-    plt.plot(h, P/P[0], label=r'Pressure $P/P_0$')
-    plt.plot(h, rho/rho[0], label=r'Density $\rho/\rho_0$')
+    plt.semilogy(h, P/P[0], label=r'Pressure $P/P_0$')
+    plt.semilogy(h, rho/rho[0], label=r'Density $\rho/\rho_0$')
     plt.xlabel('Height [km]')
+    plt.ylabel('Normalized pressure and density')
     if save:
-        fig.savefig(folder + '1_3b_pressure_density.pdf', bbox_inches='tight',pad_inches=0.106)
+        fig.savefig(folder + '1_3c.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
+
+
 
 def plot_mean_molecular_weight(save=False):
     fig = plt.figure()
@@ -77,9 +84,8 @@ def plot_mean_molecular_weight(save=False):
         fig.savefig(folder + '1_3d.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-def scale_height(i):
-    H_P = -h[i]*np.log(rho[i]/rho[0])
-    return H_P
+
+
 
 def plot_column_mass(save=False):
     fig = plt.figure()

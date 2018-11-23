@@ -46,7 +46,7 @@ rho_p = n_p*m_p                 # Proton mass density, [g cm^-3]
 
 """ Density of electrons not from ionized hydrogen """
 #rho_not_H_e = rho_e - rho_p     # Density of electrons not coming from hydrogen ionization
-rho_not_H_e = (n_e - n_p)*m_e
+n_not_H_e = (n_e - n_p)
 
 
 
@@ -61,6 +61,8 @@ def plot_temp_height(save=False):
     if save:
         fig.savefig(folder + 'temp_height.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
+
+plot_temp_height()
 
 def plot_ptot_mass(log=False, save=False):
     fig = plt.figure()
@@ -110,16 +112,12 @@ def plot_density_height(save=False):
     plt.plot(h, rho)
     plt.xlabel('Height [km]')
     plt.ylabel(r'Density  [g cm$^{-3}$]')
+    plt.axhline(y=rho[np.where(h==0)]*1/np.exp(1),  color='r', linestyle='--', label=r'$\rho \cdot 1/e$')
     if save:
         fig.savefig(folder + 'density_height.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-    h0_index = h.tolist().index(0)
-    photosphere_index = h.tolist().index(600)
-
-    H_rho = np.average( h[photosphere_index]/np.log(rho[h0_index]/rho[photosphere_index]) )
-    print('Density scale height:', H_rho)
-
+plot_density_height(save=True)
 
 def plot_gas_pressure_height(save=False):
     P_ideal = (n_H + n_e + n_He)*k_erg*T
@@ -147,24 +145,25 @@ def plot_gas_pressure_height(save=False):
 def plot_hydrogen_density_height(save=False):
     fig = plt.figure()
     plt.grid()
-    plt.plot(h, rho_H, label=r'$\rho_H$')
-    plt.plot(h, rho_e, label=r'$\rho_e$')
-    plt.plot(h, rho_p, label=r'$\rho_p$')
-    plt.plot(h, rho_not_H_e, label=r'$\rho_e -\rho_p$')
+    plt.semilogy(h, n_H, label=r'$n_H$')
+    plt.semilogy(h, n_e, label=r'$n_e$')
+    plt.semilogy(h, n_p, label=r'$n_p$')
+    plt.semilogy(h, n_not_H_e, label=r'$n_e -n_p$')
     plt.legend()
     plt.xlabel('Height [km]')
-    plt.ylabel(r'Density [dyn cm$^{-2}$] ')
+    plt.ylabel(r'Number density [cm$^{3}$] ')
     if save:
-        fig.savefig(folder + 'hydrogen_electron_density.pdf', bbox_inches='tight',pad_inches=0.106)
+        fig.savefig(folder + '1_2f.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
+
+
 
 def plot_ionization_fraction(save=False):
     fig = plt.figure()
     plt.grid()
-    plt.semilogy(h, rho_not_H_e)
-    plt.legend()
+    plt.semilogy(h, n_p/n_H)
     plt.xlabel('Height [km]')
-    plt.ylabel(r'Density [dyn cm$^{-2}$] ')
+    plt.ylabel(r'Ionization fraction ')
     if save:
         fig.savefig(folder + 'ionization_fraction.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
