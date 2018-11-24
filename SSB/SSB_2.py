@@ -290,7 +290,6 @@ def plot_2_5(save=False):
         fig.savefig(folder + '2_5.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-plot_2_5(save=True)
 
 """ 2.6: Limb darkening """
 def plot_2_6(save=False):
@@ -387,6 +386,3 @@ def plot_2_7():
     plt.grid(True)
     plt.show()
     fig.savefig(folder + '2_7.pdf',bbox_inches='tight',pad_inches=0.106)
-
-
-plot_2_7()

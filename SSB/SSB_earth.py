@@ -59,7 +59,6 @@ def plot_quantities(save=False):
         fig4.savefig(folder + '1_3b_density.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-plot_quantities(save=True)
 
 def plot_pressure_density(save=False):
     fig = plt.figure()

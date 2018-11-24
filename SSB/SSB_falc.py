@@ -62,7 +62,6 @@ def plot_temp_height(save=False):
         fig.savefig(folder + 'temp_height.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-plot_temp_height()
 
 def plot_ptot_mass(log=False, save=False):
     fig = plt.figure()
@@ -117,7 +116,6 @@ def plot_density_height(save=False):
         fig.savefig(folder + 'density_height.pdf', bbox_inches='tight',pad_inches=0.106)
     plt.show()
 
-plot_density_height(save=True)
 
 def plot_gas_pressure_height(save=False):
     P_ideal = (n_H + n_e + n_He)*k_erg*T
